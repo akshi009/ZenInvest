@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import Term from "@/components/Term";
-import HomeTopMovers from "@/components/HomeTopMovers";
+import TopPerformersSection from "@/components/TopPerformersSection";
 import HomeNews from "@/components/HomeNews";
 
 export const dynamic = "force-dynamic";
@@ -36,10 +36,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Top performers — client component fetches live */}
+      {/* Top performers — client component fetches live, market-filtered */}
       <section>
-        <h2 className="mb-5 text-xl font-bold">Top performers today</h2>
-        <HomeTopMovers />
+        <TopPerformersSection />
       </section>
 
       {/* Weekly news — client component fetches live */}

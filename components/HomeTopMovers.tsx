@@ -3,26 +3,63 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+export type MarketFilter = "global" | "india" | "us";
+
 interface Mover {
   symbol: string;
   name: string;
   price: number;
-  changesPercentage: number;
-  exchange?: string;
+  changePct: number;
+  currency: "₹" | "$";
   sector?: string;
 }
 
-export default function HomeTopMovers() {
+async function fetchGlobal(): Promise<Mover[]> {
+  const r = await fetch("/api/top-movers");
+  const d = await r.json();
+  return (Array.isArray(d) ? d : []).map((m: any) => ({
+    symbol: m.symbol,
+    name: m.name || m.symbol,
+    price: m.price,
+    changePct: m.changesPercentage,
+    // NSE fallback rows are tagged exchange:"NSE"; everything else FMP
+    // returns for "biggest gainers" is USD-denominated.
+    currency: m.exchange === "NSE" ? "₹" : "$",
+    sector: m.sector,
+  }));
+}
+
+async function fetchPool(market: "india" | "us"): Promise<Mover[]> {
+  const r = await fetch(`/api/pool?market=${market}`);
+  const d = await r.json();
+  return (Array.isArray(d) ? d : [])
+    .map((s: any) => ({
+      symbol: s.symbol,
+      name: s.name,
+      price: s.price,
+      changePct: s.changePct,
+      currency: s.currency,
+      sector: s.sector,
+    }))
+    .sort((a, b) => b.changePct - a.changePct);
+}
+
+export default function HomeTopMovers({ market = "global" as MarketFilter }: { market?: MarketFilter }) {
   const [movers, setMovers] = useState<Mover[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/top-movers")
-      .then((r) => r.json())
-      .then((d) => setMovers(d.slice(0, 6)))
-      .catch(() => setMovers([]))
-      .finally(() => setLoading(false));
-  }, []);
+    let alive = true;
+    setLoading(true);
+    const load = market === "global" ? fetchGlobal() : fetchPool(market);
+    load
+      .then((d) => alive && setMovers(d.slice(0, 6)))
+      .catch(() => alive && setMovers([]))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [market]);
 
   if (loading) {
     return (
@@ -45,7 +82,7 @@ export default function HomeTopMovers() {
   return (
     <div className="hide-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
       {movers.map((m) => {
-        const up = m.changesPercentage >= 0;
+        const up = m.changePct >= 0;
         return (
           <Link
             key={m.symbol}
@@ -72,11 +109,12 @@ export default function HomeTopMovers() {
             </div>
             <div className="mt-4">
               <div className="num text-2xl font-bold text-ink">
-                ${m.price?.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                {m.currency}
+                {m.price?.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
               </div>
               <div className={`num mt-0.5 text-sm font-medium ${up ? "text-gain" : "text-loss"}`}>
                 {up ? "▲" : "▼"} {up ? "+" : ""}
-                {m.changesPercentage?.toFixed(2)}%
+                {m.changePct?.toFixed(2)}%
               </div>
             </div>
           </Link>
