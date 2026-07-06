@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  /* Calm Capital Dark — adapted. Deep blue-slate base, luminous slate-blue accent */
+  --color-bg: #0b1016;
+  --color-surface: #121924;
+  --color-surface-2: #1a2330;
+  --color-surface-3: #232e3d;
+  --color-line: #2a3646;
+  --color-line-soft: #1f2938;
+  --color-ink: #e4eaf1;
+  --color-ink-2: #9fb0c0;
+  --color-ink-3: #64778a;
+  --color-accent: #8fd0ec;
+  --color-accent-deep: #57a4c6;
+  --color-on-accent: #06222e;
+  --color-gain: #82d6a9;
+  --color-loss: #f0a49b;
+  --color-warn: #e6c77c;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  --radius-card: 0.875rem;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Numbers everywhere read as data — tabular, mono */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Glossary terms: dashed underline, help cursor */
+.term {
+  border-bottom: 1px dashed var(--color-accent-deep);
+  cursor: help;
+  text-decoration: none;
+  color: inherit;
+}
+.term:hover {
+  color: var(--color-accent);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
