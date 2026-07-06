@@ -201,7 +201,7 @@ export async function getTopGainers(): Promise<FMPQuote[]> {
 
   // Fallback: real NSE pre-open market movers
   try {
-    const preOpen = await nseClient.getPreOpenMarketData("equity");
+    const preOpen = await nseClient.getPreOpenMarketData();
     if (preOpen?.data && Array.isArray(preOpen.data)) {
       return preOpen.data.slice(0, 8).map((item: any) => {
         const meta = item.metadata || {};
